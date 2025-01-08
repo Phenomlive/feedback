@@ -33,3 +33,17 @@ class SingleReviewView(DetailView):
     template_name = 'reviews/single_review.html'
     model = Review
     context_object_name = 'reviews'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        loaded_review = self.object
+        request = self.request
+        fav_id = request.session.get('fav_review')
+        context['is_favorite'] = fav_id == str(loaded_review.id)
+        return context
+
+class AddFavoriteView(View):
+    def post(self, request):
+        review_id = request.POST['review_id']
+        request.session['fav_review'] = review_id
+        return HttpResponseRedirect('/reviews/' + review_id)
